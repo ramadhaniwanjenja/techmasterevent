@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccessiMouse Learning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #ffffff;
+            font-size: 24px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        .status {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .content-area {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            min-height: 400px;
+        }
+
+        .lesson-content {
+            margin-bottom: 30px;
+        }
+
+        .lesson-title {
+            font-size: 36px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .lesson-text {
+            font-size: 28px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .navigation-info {
+            background: #0f1419;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button-guide {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .button-info {
+            background: #2d3748;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .current-focus {
+            outline: 3px solid #4CAF50;
+            background: #2d4a2d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #2d3748;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .active-element {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 AccessiMouse Learning Platform</h1>
+            <p>Voice-Guided Education for Everyone</p>
+        </div>
+
+        <div class="status">
+            <div id="connection-status">🔴 Waiting for AccessiMouse connection...</div>
+            <div id="current-action">Ready to learn!</div>
+        </div>
+
+        <div class="content-area">
+            <div class="lesson-content">
+                <h2 class="lesson-title" id="lesson-title">Welcome to AccessiMouse</h2>
+                <div class="lesson-text" id="lesson-text">
+                    Welcome to your personalized learning experience! Use your AccessiMouse device to navigate through lessons. Press SELECT to begin your first lesson.
+                </div>
+            </div>
+
+            <div class="navigation-info">
+                <h3>📍 Current Location: <span id="current-location">Main Menu</span></h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p>Progress: <span id="progress-text">0% Complete</span></p>
+            </div>
+        </div>
+
+        <div class="button-guide">
+            <div class="button-info">
+                <strong>⬆️ UP:</strong> Previous Section
+            </div>
+            <div class="button-info">
+                <strong>⬇️ DOWN:</strong> Next Section
+            </div>
+            <div class="button-info">
+                <strong>⬅️ LEFT:</strong> Previous Page
+            </div>
+            <div class="button-info">
+                <strong>➡️ RIGHT:</strong> Next Page
+            </div>
+            <div class="button-info">
+                <strong>✅ SELECT:</strong> Activate/Enter
+            </div>
+            <div class="button-info">
+                <strong>🔙 BACK:</strong> Return/Home
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Website state management
+        let currentState = {
+            section: 0,
+            page: 0,
+            lesson: 0,
+            totalLessons: 5,
+            isConnected: false
+        };
+
+        // Lesson content database
+        const lessons = {
+            0: {
+                title: "Welcome to AccessiMouse",
+                content: "Welcome to your personalized learning experience! Use your AccessiMouse device to navigate through lessons. Press SELECT to begin your first lesson.",
+                location: "Main Menu"
+            },
+            1: {
+                title: "Mathematics Basics",
+                content: "Let's start with basic mathematics. Numbers are the foundation of all mathematical concepts. We'll begin with counting and simple arithmetic operations.",
+                location: "Mathematics Section"
+            },
+            2: {
+                title: "Addition and Subtraction",
+                content: "Addition means combining numbers to get a larger number. For example, 2 plus 3 equals 5. Subtraction means taking away numbers to get a smaller number.",
+                location: "Mathematics - Basic Operations"
+            },
+            3: {
+                title: "Science Fundamentals",
+                content: "Science helps us understand the world around us. We observe, ask questions, and find answers through experiments and careful study.",
+                location: "Science Section"
+            },
+            4: {
+                title: "English Language",
+                content: "Language helps us communicate with others. We use words, sentences, and stories to share our thoughts and ideas.",
+                location: "English Section"
+            },
+            5: {
+                title: "Congratulations!",
+                content: "You have completed all the basic lessons! You're ready to explore more advanced topics. Great job learning with AccessiMouse!",
+                location: "Course Complete"
+            }
+        };
+
+        // WebSocket connection
+        let socket;
+        let speechSynthesis = window.speechSynthesis;
+        let isReading = false;
+
+        // Initialize the application
+        function init() {
+            connectWebSocket();
+            updateDisplay();
+            speak("AccessiMouse learning platform loaded. Waiting for device connection.");
+        }
+
+        // WebSocket connection
+        function connectWebSocket() {
+            // For demo purposes, we'll simulate WebSocket connection
+            // In production, replace with actual WebSocket server
+            setTimeout(() => {
+                currentState.isConnected = true;
+                updateConnectionStatus();
+                speak("AccessiMouse device connected successfully!");
+            }, 2000);
+
+            // Simulate receiving commands (for testing)
+            // In production, this would be replaced with actual WebSocket message handling
+            document.addEventListener('keydown', function(event) {
+                let action = '';
+                switch(event.key) {
+                    case 'ArrowUp': action = 'UP'; break;
+                    case 'ArrowDown': action = 'DOWN'; break;
+                    case 'ArrowLeft': action = 'LEFT'; break;
+                    case 'ArrowRight': action = 'RIGHT'; break;
+                    case 'Enter': action = 'SELECT'; break;
+                    case 'Escape': action = 'BACK'; break;
+                }
+                if (action) {
+                    handleDeviceCommand(action);
+                }
+            });
+        }
+
+        // Handle commands from AccessiMouse device
+        function handleDeviceCommand(action) {
+            if (!currentState.isConnected) return;
+
+            document.getElementById('current-action').textContent = `Command: ${action}`;
+            
+            switch(action) {
+                case 'UP':
+                    if (currentState.lesson > 0) {
+                        currentState.lesson--;
+                        updateDisplay();
+                        speak("Previous lesson selected");
+                    } else {
+                        speak("Already at the first lesson");
+                    }
+                    break;
+                    
+                case 'DOWN':
+                    if (currentState.lesson < currentState.totalLessons) {
+                        currentState.lesson++;
+                        updateDisplay();
+                        speak("Next lesson selected");
+                    } else {
+                        speak("Already at the last lesson");
+                    }
+                    break;
+                    
+                case 'LEFT':
+                    currentState.page = Math.max(0, currentState.page - 1);
+                    speak("Previous page");
+                    break;
+                    
+                case 'RIGHT':
+                    currentState.page++;
+                    speak("Next page");
+                    break;
+                    
+                case 'SELECT':
+                    speak("Reading lesson content");
+                    setTimeout(() => {
+                        readCurrentLesson();
+                    }, 1000);
+                    break;
+                    
+                case 'BACK':
+                    currentState.lesson = 0;
+                    currentState.page = 0;
+                    updateDisplay();
+                    speak("Returned to main menu");
+                    break;
+            }
+        }
+
+        // Update display with current lesson
+        function updateDisplay() {
+            const lesson = lessons[currentState.lesson] || lessons[0];
+            
+            document.getElementById('lesson-title').textContent = lesson.title;
+            document.getElementById('lesson-text').textContent = lesson.content;
+            document.getElementById('current-location').textContent = lesson.location;
+            
+            // Update progress
+            const progress = (currentState.lesson / currentState.totalLessons) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = Math.round(progress) + '% Complete';
+            
+            // Add visual feedback
+            document.querySelector('.content-area').classList.add('active-element');
+            setTimeout(() => {
+                document.querySelector('.content-area').classList.remove('active-element');
+            }, 1000);
+        }
+
+        // Text-to-Speech function
+        function speak(text) {
+            if (isReading) {
+                speechSynthesis.cancel();
+            }
+            
+            isReading = true;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+            
+            utterance.onend = function() {
+                isReading = false;
+            };
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // Read current lesson content
+        function readCurrentLesson() {
+            const lesson = lessons[currentState.lesson] || lessons[0];
+            const fullContent = lesson.title + ". " + lesson.content;
+            speak(fullContent);
+        }
+
+        // Update connection status
+        function updateConnectionStatus() {
+            const status = document.getElementById('connection-status');
+            if (currentState.isConnected) {
+                status.textContent = "🟢 AccessiMouse connected successfully!";
+                status.style.color = "#4CAF50";
+            } else {
+                status.textContent = "🔴 Waiting for AccessiMouse connection...";
+                status.style.color = "#f44336";
+            }
+        }
+
+        // Voice commands (bonus feature)
+        function initVoiceCommands() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onresult = function(event) {
+                    const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                    
+                    if (command.includes('next')) {
+                        handleDeviceCommand('DOWN');
+                    } else if (command.includes('previous')) {
+                        handleDeviceCommand('UP');
+                    } else if (command.includes('read') || command.includes('play')) {
+                        handleDeviceCommand('SELECT');
+                    } else if (command.includes('home') || command.includes('back')) {
+                        handleDeviceCommand('BACK');
+                    }
+                };
+                
+                recognition.start();
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+
+        // Instructions for users
+        console.log("AccessiMouse Demo Instructions:");
+        console.log("Use arrow keys to simulate AccessiMouse buttons:");
+        console.log("↑ = UP, ↓ = DOWN, ← = LEFT, → = RIGHT");
+        console.log("Enter = SELECT, Escape = BACK");
+    </script>
+</body>
+</html>
