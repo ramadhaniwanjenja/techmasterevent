@@ -224,6 +224,13 @@
             connectWebSocket();
             updateDisplay();
             speak("AccessiMouse learning platform loaded. Waiting for device connection.");
+            
+            // Demo mode - simulate device connection after 3 seconds
+            setTimeout(() => {
+                currentState.isConnected = true;
+                updateConnectionStatus();
+                speak("AccessiMouse device connected successfully!");
+            }, 3000);
         }
 
         // WebSocket connection
